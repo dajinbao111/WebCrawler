@@ -1,0 +1,58 @@
+package com.github.dajinbao.apiserver.web;
+
+import com.github.dajinbao.apiserver.common.model.Page;
+import com.github.dajinbao.apiserver.common.model.RestResult;
+import com.github.dajinbao.apiserver.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
+
+@Tag(name = "任务管理")
+@RestController
+public class TaskController {
+
+    private final TaskService service;
+
+    public TaskController(TaskService service) {
+        this.service = service;
+    }
+
+    @Operation(summary = "创建任务")
+    @Parameters({
+            @Parameter(name = "taskType", description = "任务类型（yahoo-product|yahoo-seller|mercari-product|mercari-search）", required = true),
+            @Parameter(name = "taskUrl", description = "任务地址", required = true)
+    })
+    @PostMapping("/v1/tasks/create")
+    public RestResult<Void> create(@RequestParam String taskType, @RequestParam String taskUrl) {
+        service.create(taskType, taskUrl);
+        return RestResult.success();
+    }
+
+    @Operation(summary = "更新抓取配置")
+    @PostMapping("/v1/tasks/config/upsert")
+    public RestResult<Void> upsert(@RequestParam("file") MultipartFile file) throws IOException {
+        service.upsert(file);
+        return RestResult.success();
+    }
+
+    @Operation(summary = "任务状态")
+    @PostMapping("/v1/tasks/status")
+    public RestResult<Map<String, Object>> status() {
+        return RestResult.success(service.status());
+    }
+
+    @Operation(summary = "任务状态列表")
+    @GetMapping("/v1/tasks/list")
+    public RestResult<Page<Map>> list(@RequestParam String taskStatus,@RequestParam(defaultValue = "1") int pageNo, @RequestParam(defaultValue = "20") int pageSize) {
+        return RestResult.success(service.list(taskStatus,pageNo, pageSize));
+    }
+}
