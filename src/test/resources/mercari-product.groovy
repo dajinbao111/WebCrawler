@@ -38,6 +38,7 @@ static def fetch(Task task) {
             def jsonObj = JSON.parseObject(content)
             def item = jsonObj.getJSONObject("data")
             def product = [:]
+            product["productSite"] = "mercari"
             product["productCode"] = item.getString("id")
             product["productTitle"] = item.getString("name")
             product["productPrice"] = item.getString("price")
@@ -50,7 +51,8 @@ static def fetch(Task task) {
                     ImgDownloader.download(imgUrl, IMG_PATH + product["productCode"] + "/")
                 }
             }
-            product["productImgUrl"] = img
+            product["productMainImg"] = img[0]
+            product["productThumbnail"] = img
             product["productDesc"] = item.getString("description")
 
             def categories = []

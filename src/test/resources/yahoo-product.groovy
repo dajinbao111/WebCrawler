@@ -33,6 +33,7 @@ static def fetch(Task task) {
 
     if (response != null && response.isOk()) {
         def product = [:]
+        product["productSite"] = "yahoo"
 
         try {
             def doc = Jsoup.parse(response.body());
@@ -46,7 +47,7 @@ static def fetch(Task task) {
                 price[it.selectFirst("dt.Price__title").text()] = it.selectFirst("dd.Price__value").text()
                 prices << price
             }
-            product["productPrice"] = prices
+            product["productPrice"] = prices[0]
 
             def img = []
             doc.select("div.ProductImage > div.ProductImage__body > ul.ProductImage__images > li.ProductImage__image").each {
@@ -54,7 +55,8 @@ static def fetch(Task task) {
                 img << imgUrl
                 ImgDownloader.download(imgUrl, IMG_PATH + product["productCode"] + "/")
             }
-            product["productImgUrl"] = img
+            product["productMainImg"] = img[0]
+            product["productThumbnail"] = img
 
             def info = [:]
             doc.select("li.ProductInformation__item table.Section__table tr.Section__tableRow").each {
