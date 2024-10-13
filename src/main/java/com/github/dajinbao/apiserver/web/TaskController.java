@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Tag(name = "任务管理")
@@ -45,10 +46,17 @@ public class TaskController {
     }
 
     @Operation(summary = "任务状态")
-    @PostMapping("/v1/tasks/status")
+    @GetMapping("/v1/tasks/status")
     public RestResult<Map<String, Object>> status() {
         return RestResult.success(service.status());
     }
+
+    @Operation(summary = "任务类型")
+    @GetMapping("/v1/tasks/type")
+    public RestResult<List<String>> type() {
+        return RestResult.success(service.type());
+    }
+
 
     @Operation(summary = "任务状态列表")
     @GetMapping("/v1/tasks/list")

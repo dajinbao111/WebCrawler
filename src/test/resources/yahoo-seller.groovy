@@ -23,38 +23,38 @@ static def fetch(Task task) {
                 .setFollowRedirects(true)
                 .executeAsync()
     } catch (Exception e) {
-        task.setTaskStatus(TaskStatusEnum.FAILED.getCode())
-        task.setFailReason("网络请求失败: " + task.getTaskType())
         throw new RuntimeException("网络请求失败: " + e.getMessage())
     }
 
     if (response != null && response.isOk()) {
-        def doc = Jsoup.parse(response.body())
+        try {
+            def doc = Jsoup.parse(response.body())
 
-        def tasks = []
-        doc.select("ul.Products__items > li.Product").each {
-            def url = it.select("p.Product__title > a[href]").get(0).attr("href")
-            def newTask = [:]
-            newTask["taskType"] = "yahoo-product"
-            newTask["taskUrl"] = url
-            tasks << newTask
+            def tasks = []
+            doc.select("ul.Products__items > li.Product").each {
+                def url = it.select("p.Product__title > a[href]").get(0).attr("href")
+                def newTask = [:]
+                newTask["taskType"] = "yahoo-product"
+                newTask["taskUrl"] = url
+                tasks << newTask
+            }
+
+            def next = doc.select("ul.Pager__lists > li.Pager__list--next > a[href]")
+            if (next.size() > 0) {
+                def newTask = [:]
+                newTask["taskType"] = "yahoo-seller";
+                newTask["taskUrl"] = next.get(0).attr("href")
+                tasks << newTask
+            }
+
+            result["tasks"] = tasks
+            task.setTaskStatus(TaskStatusEnum.FINISHED.getCode());
+            return JSON.toJSONString(result)
+        } catch (Exception e) {
+            throw new RuntimeException("结果解析失败: " + e.getMessage())
         }
-
-        def next = doc.select("ul.Pager__lists > li.Pager__list--next > a[href]")
-        if (next.size() > 0) {
-            def newTask = [:]
-            newTask["taskType"] = "yahoo-seller";
-            newTask["taskUrl"] = next.get(0).attr("href")
-            tasks << newTask
-        }
-
-        result["tasks"] = tasks
-        task.setTaskStatus(TaskStatusEnum.FINISHED.getCode());
-        return JSON.toJSONString(result)
     } else {
         String resson = response == null ? "response is null" : response.getStatus() + ""
-        task.setTaskStatus(TaskStatusEnum.FAILED.getCode())
-        task.setFailReason("网络请求失败: " + task.getTaskType())
         throw new RuntimeException("网络请求失败: " + resson)
     }
 }

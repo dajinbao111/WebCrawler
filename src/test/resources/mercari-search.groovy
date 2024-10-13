@@ -28,48 +28,48 @@ static def fetch(Task task) {
                 .body("{\"userId\":\"\",\"pageSize\":120,\"pageToken\":\"\",\"searchSessionId\":\"42d72376d6671d9bb3ec1c6d8bb1176e\",\"indexRouting\":\"INDEX_ROUTING_UNSPECIFIED\",\"thumbnailTypes\":[],\"searchCondition\":{\"keyword\":\"\",\"excludeKeyword\":\"\",\"sort\":\"SORT_SCORE\",\"order\":\"ORDER_DESC\",\"status\":[],\"sizeId\":[],\"categoryId\":[" + categoryId + "],\"brandId\":[],\"sellerId\":[],\"priceMin\":0,\"priceMax\":0,\"itemConditionId\":[],\"shippingPayerId\":[],\"shippingFromArea\":[],\"shippingMethod\":[],\"colorId\":[],\"hasCoupon\":false,\"attributes\":[],\"itemTypes\":[],\"skuIds\":[],\"shopIds\":[]},\"defaultDatasets\":[\"DATASET_TYPE_MERCARI\",\"DATASET_TYPE_BEYOND\"],\"serviceFrom\":\"suruga\",\"withItemBrand\":true,\"withItemSize\":false,\"withItemPromotions\":true,\"withItemSizes\":true,\"withShopname\":false,\"useDynamicAttribute\":true,\"withSuggestedItems\":true,\"withOfferPricePromotion\":true,\"withProductSuggest\":true,\"withProductArticles\":false,\"withSearchConditionId\":false}")
                 .executeAsync()
     } catch (Exception e) {
-        task.setTaskStatus(TaskStatusEnum.FAILED.getCode())
-        task.setFailReason("网络请求失败: " + task.getTaskType())
         throw new RuntimeException("网络请求失败: " + e.getMessage())
     }
 
     if (response != null && response.isOk()) {
         def content = response.body()
-        def jsonObj = JSON.parseObject(content)
-        def items = jsonObj.getJSONArray("items")
-        def products = []
-        def tasks = []
-        for (i in 0..<items.size()) {
-            def item = items.getJSONObject(i)
-            def product = [:]
-            def newTask = [:]
-            product["productCode"] = item.getString("id")
-            product["productUrl"] = "https://jp.mercari.com/item/" + product["productCode"]
-            product["productTitle"] = item.getString("name")
-            product["productPrice"] = item.getString("price")
-            def img = []
-            item.getJSONArray("thumbnails").forEach { t ->
-                img << t
-            }
-            product["productImgUrl"] = img
-            def seller = [:]
-            seller["sellerId"] = item.getString("sellerId")
-            seller["sellerUrl"] = "https://jp.mercari.com/user/profile/" + seller["sellerId"]
-            product["seller"] = seller
-            products << product
+        try {
+            def jsonObj = JSON.parseObject(content)
+            def items = jsonObj.getJSONArray("items")
+            def products = []
+            def tasks = []
+            for (i in 0..<items.size()) {
+                def item = items.getJSONObject(i)
+                def product = [:]
+                def newTask = [:]
+                product["productCode"] = item.getString("id")
+                product["productUrl"] = "https://jp.mercari.com/item/" + product["productCode"]
+                product["productTitle"] = item.getString("name")
+                product["productPrice"] = item.getString("price")
+                def img = []
+                item.getJSONArray("thumbnails").forEach { t ->
+                    img << t
+                }
+                product["productImgUrl"] = img
+                def seller = [:]
+                seller["sellerId"] = item.getString("sellerId")
+                seller["sellerUrl"] = "https://jp.mercari.com/user/profile/" + seller["sellerId"]
+                product["seller"] = seller
+                products << product
 
-            newTask["taskType"] = "mercari-product";
-            newTask["taskUrl"] = product["productUrl"]
-            tasks << newTask
+                newTask["taskType"] = "mercari-product";
+                newTask["taskUrl"] = product["productUrl"]
+                tasks << newTask
+            }
+            result["tasks"] = tasks
+            result["products"] = products
+            task.setTaskStatus(TaskStatusEnum.FINISHED.getCode());
+            return JSON.toJSONString(result)
+        } catch (Exception e) {
+            throw new RuntimeException("结果解析失败: " + e.getMessage())
         }
-        result["tasks"] = tasks
-        result["products"] = products
-        task.setTaskStatus(TaskStatusEnum.FINISHED.getCode());
-        return JSON.toJSONString(result)
     } else {
         String resson = response == null ? "response is null" : response.getStatus() + ""
-        task.setTaskStatus(TaskStatusEnum.FAILED.getCode())
-        task.setFailReason("网络请求失败: " + task.getTaskType())
         throw new RuntimeException("网络请求失败: " + resson)
     }
 }

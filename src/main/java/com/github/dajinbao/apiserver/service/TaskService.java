@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -145,5 +146,21 @@ public class TaskService {
         List<Map> taskList = template.find(query(where("taskStatus").is(taskStatus)).skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "task");
         page.setRecords(taskList);
         return page;
+    }
+
+    public List<String> type() {
+        List<String> typeList = new ArrayList<>();
+        Path uploadPath = Paths.get(uploadDir + "script/");
+
+        if (Files.exists(uploadPath)) {
+            try {
+                Files.list(uploadPath).forEach(file -> {
+                    typeList.add(FileNameUtil.getPrefix(file.getFileName().toString()));
+                });
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return typeList;
     }
 }
