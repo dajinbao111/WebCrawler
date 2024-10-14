@@ -9,7 +9,7 @@ spring:
     mongodb:
       uri: mongodb://admin:123456@192.168.1.11:27017/go-crawler
 server:
-  port: 8080
+  port: 18080
 
 file:
   upload-dir: D:/Workspaces/go-crawler/uploads/

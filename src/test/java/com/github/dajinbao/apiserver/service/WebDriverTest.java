@@ -20,13 +20,13 @@ public class WebDriverTest {
 
     public static void main(String[] args) {
         ChromeOptions options = new ChromeOptions();
-//        options.addArguments("--proxy-server=socks5://127.0.0.1:7890");
+        options.addArguments("--proxy-server=socks5://127.0.0.1:7890");
 //        options.addArguments("--headless");
         options.addArguments("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36");
-        options.addExtensions(new File("C:/Users/Administrator/Downloads/1688-extension.crx"));
-        options.addArguments("--user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/Default");
+//        options.addExtensions(new File("C:/Users/Administrator/Downloads/1688-extension.crx"));
+//        options.addArguments("--user-data-dir=C:/Users/Administrator/AppData/Local/Google/Chrome/User Data/Default");
         WebDriver driver = new ChromeDriver(options);
-        driver.get("https://www.1688.com");
+        driver.get("https://jp.mercari.com/item/m76452049891");
 //        driver.get("chrome-extension://dgeafmgkobkeendinpademeoiaagknoj/popup.html");
 //        driver.get("https://jp.mercari.com/search?category_id=1184&brand_id=3441");
 //        JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -38,15 +38,15 @@ public class WebDriverTest {
 //                throw new RuntimeException(e);
 //            }
 //        }
-//        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.image-input-button")));
-        driver.findElement(By.cssSelector("div.image-input-button")).click();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
+//        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+//        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("div.image-input-button")));
+//        driver.findElement(By.cssSelector("div.image-input-button")).click();
 //        WebElement searchByCamera = driver.findElement(By.cssSelector("div.btn-camera"));
 //        searchByCamera.click();
         String source = driver.getPageSource();
         System.out.println(source);
-//        driver.quit();
+        driver.quit();
     }
 
 }

@@ -43,9 +43,7 @@ static def fetch(Task task) {
 
             def prices = []
             doc.select("div.Price__borderBox > .Price__body > div.Price__row").each {
-                def price = [:]
-                price[it.selectFirst("dt.Price__title").text()] = it.selectFirst("dd.Price__value").text()
-                prices << price
+                prices << it.selectFirst("dd.Price__value").text()
             }
             product["productPrice"] = prices[0]
 
@@ -95,6 +93,6 @@ static def fetch(Task task) {
 
 static void main(String[] args) {
     def task = new Task()
-    task.setTaskUrl("https://page.auctions.yahoo.co.jp/jp/auction/b1156096151")
+    task.setTaskUrl("https://page.auctions.yahoo.co.jp/jp/auction/o1156395964")
     println fetch(task)
 }
