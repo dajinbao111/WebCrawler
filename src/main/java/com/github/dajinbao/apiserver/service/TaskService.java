@@ -52,7 +52,7 @@ public class TaskService {
     }
 
     public List<Task> batchGet(String[] taskTypes, Integer limit) {
-        List<Task> taskList = template.find(query(where("taskStatus").is(TaskStatusEnum.PENDING.getCode()).and("taskType").in(Stream.of(taskTypes))).limit(limit), Task.class);
+        List<Task> taskList = template.find(query(where("taskStatus").is(TaskStatusEnum.PENDING.getCode()).and("taskType").in(Stream.of(taskTypes).toList())).limit(limit), Task.class);
         List<String> ids = taskList.stream().map(Task::getId).toList();
         template.updateMulti(query(where("id").in(ids)), new Update().set("taskStatus", TaskStatusEnum.RUNNING.getCode()), Task.class);
         return taskList;
@@ -75,7 +75,7 @@ public class TaskService {
         }
     }
 
-    @Scheduled(fixedRate = 1000 * 30)
+    @Scheduled(fixedDelay = 1000 * 30)
     public void fetchBatchTask() {
         List<Task> taskList = batchGet(new String[]{"mercari-image", "yahoo-product", "yahoo-seller"}, 10);
         if (!taskList.isEmpty()) {

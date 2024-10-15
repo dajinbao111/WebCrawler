@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: webcrawler
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/webcrawler
+server:
+  port: 8080
+
+file:
+  upload-dir: c:/webcrawler/uploads/

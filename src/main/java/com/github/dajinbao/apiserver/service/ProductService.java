@@ -41,7 +41,7 @@ public class ProductService {
         if (StrUtil.isNotBlank(req.getSellerId())) {
             query.addCriteria(where("seller.sellerId").is(req.getSellerId()));
         }
-        if (req.getUpdatedStartTime() != null && req.getUpdatedEndTime() != null) {
+        if (StrUtil.isNotBlank(req.getUpdatedStartTime()) && StrUtil.isNotBlank(req.getUpdatedEndTime())) {
             query.addCriteria(where("updatedAt")
                     .gte(DateUtil.parse(req.getUpdatedStartTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime())
                     .lte(DateUtil.parse(req.getUpdatedEndTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime()));
@@ -114,7 +114,7 @@ public class ProductService {
         if (StrUtil.isNotBlank(req.getSellerId())) {
             query.addCriteria(where("seller.sellerId").is(req.getSellerId()));
         }
-        if (req.getUpdatedStartTime() != null && req.getUpdatedEndTime() != null) {
+        if (StrUtil.isNotBlank(req.getUpdatedStartTime()) && StrUtil.isNotBlank(req.getUpdatedEndTime())) {
             query.addCriteria(where("updatedAt")
                     .gte(DateUtil.parse(req.getUpdatedStartTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime())
                     .lte(DateUtil.parse(req.getUpdatedEndTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime()));
