@@ -62,7 +62,10 @@ public class ProductService {
         resp.setId(Convert.toStr(map.get("_id")));
         resp.setProductSite(Convert.toStr(map.get("productSite")));
         resp.setProductCode(Convert.toStr(map.get("productCode")));
+        //http://47.99.75.168:8081/productImg/yahoo/h1156551433/i-img800x800-17286103581270vy8pag47033.jpg
         resp.setProductMainImg(Convert.toStr(map.get("productMainImg")));
+        String fileName = StrUtil.subAfter(resp.getProductMainImg(), "/", true);
+        resp.setProductMainImg("http://47.99.75.168:8081/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
         resp.setProductPrice(Convert.toStr(map.get("productPrice")));
         resp.setProductTitle(Convert.toStr(map.get("productTitle")));
         resp.setProductUrl(Convert.toStr(map.get("productUrl")));
@@ -72,7 +75,8 @@ public class ProductService {
 
         ArrayList<String> productThumbnails = (ArrayList<String>) map.get("productThumbnail");
         if (productThumbnails != null) {
-            resp.setProductThumbnail(String.join(";", productThumbnails));
+            String thumbnails = productThumbnails.stream().map(url -> "http://47.99.75.168:8081/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + StrUtil.subAfter(url, "/", true)).collect(Collectors.joining(";"));
+            resp.setProductThumbnail(thumbnails);
         }
         ArrayList categories = (ArrayList) map.get("category");
         if (categories != null) {
@@ -102,6 +106,7 @@ public class ProductService {
 
         return resp;
     }
+
 
     public List<ProductResp> export(ProductReq req) {
         Query query = new Query();

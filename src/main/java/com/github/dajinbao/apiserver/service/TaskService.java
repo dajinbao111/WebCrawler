@@ -60,7 +60,7 @@ public class TaskService {
 
     @Scheduled(fixedDelay = 1000 * 5)
     public void fetchTask() {
-        List<Task> taskList = batchGet(new String[]{"mercari-product", "mercari-search"}, 1);
+        List<Task> taskList = batchGet(new String[]{"mercari-product", "mercari-search", "mercari-shop"}, 1);
         if (!taskList.isEmpty()) {
             Task task = taskList.get(0);
             if (task.getTaskType().startsWith("mercari")) {
