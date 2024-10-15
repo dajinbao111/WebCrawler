@@ -106,16 +106,8 @@ public class TaskService {
                 // 创建任务
                 create(taskObj.getString("taskType"), taskObj.getString("taskUrl"));
             });
-        } else if (jsonObject.containsKey("products")) {
-            JSONArray productArr = jsonObject.getJSONArray("products");
-            for (int i = 0; i < productArr.size(); i++) {
-                JSONObject productObj = productArr.getJSONObject(i);
-                String productUrl = productObj.getString("productUrl");
-                productObj.put("_id", Long.toHexString(HashUtil.mixHash(productUrl)));
-                productObj.put("updatedAt", LocalDateTime.now());
-                template.save(productObj, "product");
-            }
-        } else if (jsonObject.containsKey("product")) {
+        }
+        if (jsonObject.containsKey("product")) {
             JSONObject productObj = jsonObject.getJSONObject("product");
             String productUrl = productObj.getString("productUrl");
             productObj.put("_id", Long.toHexString(HashUtil.mixHash(productUrl)));
