@@ -38,6 +38,12 @@ public class TaskController {
         return RestResult.success();
     }
 
+    @PostMapping("/v1/tasks/retry")
+    public RestResult<Void> retry(@RequestParam String taskId) {
+        service.retry(taskId);
+        return RestResult.success();
+    }
+
     @Operation(summary = "更新抓取配置")
     @PostMapping("/v1/tasks/config/upsert")
     public RestResult<Void> upsert(@RequestParam("file") MultipartFile file) throws IOException {

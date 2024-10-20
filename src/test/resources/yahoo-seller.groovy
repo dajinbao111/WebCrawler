@@ -38,8 +38,22 @@ static def fetch(Task task) {
                 newTask["taskUrl"] = url
                 tasks << newTask
             }
+            doc.select("ul.elItems li.elItem div.elName a").each {
+                def url = it.attr("href")
+                def newTask = [:]
+                newTask["taskType"] = "yahoo-product"
+                newTask["taskUrl"] = url
+                tasks << newTask
+            }
 
             def next = doc.select("ul.Pager__lists > li.Pager__list--next > a[href]")
+            if (next.size() > 0) {
+                def newTask = [:]
+                newTask["taskType"] = "yahoo-seller";
+                newTask["taskUrl"] = next.get(0).attr("href")
+                tasks << newTask
+            }
+            next = doc.select("div.elItem li.elNext a[href]")
             if (next.size() > 0) {
                 def newTask = [:]
                 newTask["taskType"] = "yahoo-seller";
@@ -61,6 +75,11 @@ static def fetch(Task task) {
 
 static void main(String[] args) {
     def task = new Task()
-    task.setTaskUrl("https://auctions.yahoo.co.jp/seller/oxztx00272")
+//    task.setTaskUrl("https://auctions.yahoo.co.jp/seller/oxztx00272")
+//    task.setTaskUrl("https://store.shopping.yahoo.co.jp/pstokyo/a5d0a5a4a5.html")
+//    task.setTaskUrl("https://store.shopping.yahoo.co.jp/pstokyo/a5d0a5a4a5.html?page=49#CentSrchFilter1")
+//    task.setTaskUrl("https://store.shopping.yahoo.co.jp/pstokyo/search.html")
+//    task.setTaskUrl("https://store.shopping.yahoo.co.jp/pstokyo/search.html?page=1#CentSrchFilter1")
+    task.setTaskUrl("https://store.shopping.yahoo.co.jp/pstokyo/a5d0a5a4a5.html?page=3#CentSrchFilter1")
     println fetch(task)
 }

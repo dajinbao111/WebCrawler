@@ -6,11 +6,15 @@ import cn.hutool.core.util.StrUtil;
 import com.github.dajinbao.apiserver.common.model.Page;
 import com.github.dajinbao.apiserver.entity.ProductReq;
 import com.github.dajinbao.apiserver.entity.ProductResp;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,7 +23,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Service
 public class ProductService {
-
+    @Value("${file.upload-dir}")
+    private String uploadDir;
     private final MongoTemplate template;
 
     public ProductService(MongoTemplate template) {
@@ -36,15 +41,15 @@ public class ProductService {
             query.addCriteria(where("productCode").is(req.getProductCode()));
         }
         if (StrUtil.isNotBlank(req.getProductSite())) {
-            query.addCriteria(Criteria.where("productSite").is(req.getProductSite()));
+            query.addCriteria(where("productSite").is(req.getProductSite()));
         }
         if (StrUtil.isNotBlank(req.getSellerId())) {
             query.addCriteria(where("seller.sellerId").is(req.getSellerId()));
         }
         if (StrUtil.isNotBlank(req.getUpdatedStartTime()) && StrUtil.isNotBlank(req.getUpdatedEndTime())) {
             query.addCriteria(where("updatedAt")
-                    .gte(DateUtil.parse(req.getUpdatedStartTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime())
-                    .lte(DateUtil.parse(req.getUpdatedEndTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime()));
+                    .gte(DateUtil.parse(req.getUpdatedStartTime(), "yyyy-MM-dd").toLocalDateTime())
+                    .lte(DateUtil.parse(req.getUpdatedEndTime(), "yyyy-MM-dd").toLocalDateTime()));
         }
 
 
@@ -65,7 +70,10 @@ public class ProductService {
         //http://47.99.75.168:8081/productImg/yahoo/h1156551433/i-img800x800-17286103581270vy8pag47033.jpg
         resp.setProductMainImg(Convert.toStr(map.get("productMainImg")));
         String fileName = StrUtil.subAfter(resp.getProductMainImg(), "/", true);
-        resp.setProductMainImg("http://47.99.75.168:8081/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
+        Path file = Paths.get(uploadDir + "/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
+        if (Files.exists(file)) {
+            resp.setProductMainImg("http://47.99.75.168:8081/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
+        }
         resp.setProductPrice(Convert.toStr(map.get("productPrice")));
         resp.setProductTitle(Convert.toStr(map.get("productTitle")));
         resp.setProductUrl(Convert.toStr(map.get("productUrl")));
@@ -114,15 +122,15 @@ public class ProductService {
             query.addCriteria(where("productCode").is(req.getProductCode()));
         }
         if (StrUtil.isNotBlank(req.getProductSite())) {
-            query.addCriteria(Criteria.where("productSite").is(req.getProductSite()));
+            query.addCriteria(where("productSite").is(req.getProductSite()));
         }
         if (StrUtil.isNotBlank(req.getSellerId())) {
             query.addCriteria(where("seller.sellerId").is(req.getSellerId()));
         }
         if (StrUtil.isNotBlank(req.getUpdatedStartTime()) && StrUtil.isNotBlank(req.getUpdatedEndTime())) {
             query.addCriteria(where("updatedAt")
-                    .gte(DateUtil.parse(req.getUpdatedStartTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime())
-                    .lte(DateUtil.parse(req.getUpdatedEndTime(), "yyyy-MM-dd HH:mm:ss").toLocalDateTime()));
+                    .gte(DateUtil.parse(req.getUpdatedStartTime(), "yyyy-MM-dd").toLocalDateTime())
+                    .lte(DateUtil.parse(req.getUpdatedEndTime(), "yyyy-MM-dd").toLocalDateTime()));
         }
 
         List<ProductResp> productList = template.find(query, Map.class, "product")

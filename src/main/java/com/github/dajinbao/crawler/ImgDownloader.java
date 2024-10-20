@@ -1,5 +1,7 @@
 package com.github.dajinbao.crawler;
 
+import cn.hutool.core.io.FileTypeUtil;
+import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
@@ -15,6 +17,9 @@ public class ImgDownloader {
 
     public static void download(String url, String filePath) {
         String fileName = StrUtil.subAfter(url, "/", true);
+        if (FileNameUtil.extName(fileName).isBlank()) {
+            fileName = fileName + ".jpg";
+        }
 
         Path uploadPath = Paths.get(filePath);
         if (!Files.exists(uploadPath)) {

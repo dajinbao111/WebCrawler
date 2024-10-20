@@ -26,7 +26,7 @@ static def fetch(Task task) {
         driver = new ChromeDriver(options)
         driver.get(task.getTaskUrl())
         JavascriptExecutor js = (JavascriptExecutor) driver
-        for (int i = 0; i < 180; i++) {
+        for (int i = 0; i < 20; i++) {
             js.executeScript("window.scrollTo(" + (i * 500) + ", " + ((i + 1) * 500) + ")")
             try {
                 TimeUnit.SECONDS.sleep(1);
@@ -48,11 +48,14 @@ static def fetch(Task task) {
 
         def tasks = []
         doc.select("a[data-testid='seller-link']").each {
-            def url = StrUtil.subBefore(it.attr("href"), "?", true)
-            def newTask = [:]
-            newTask["taskType"] = "mercari-product"
-            newTask["taskUrl"] = url
-            tasks << newTask
+            def el = it.select("div[data-testid='products']")
+            if (!el.isEmpty()) {
+                def url = StrUtil.subBefore(it.attr("href"), "?", true)
+                def newTask = [:]
+                newTask["taskType"] = "mercari-product"
+                newTask["taskUrl"] = url
+                tasks << newTask
+            }
         }
 
         result["tasks"] = tasks

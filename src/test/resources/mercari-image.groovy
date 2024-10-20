@@ -1,13 +1,15 @@
+import cn.hutool.core.util.StrUtil
 import cn.hutool.http.HttpRequest
 import cn.hutool.http.HttpResponse
 import com.github.dajinbao.apiserver.entity.Task
 
 static def fetch(Task task) {
-    def IMG_PATH = "D:/Workspaces/go-crawler/uploads/productImg/mercari/"
+    def IMG_PATH = "c:/webcrawler/uploads/productImg/mercari/"
     def PROXY_HOST = "127.0.0.1"
     def PROXY_PROT = 7890
 
     //https://static.mercdn.net/item/detail/orig/photos/m52869268432_1.jpg
+    //https://assets.mercari-shops-static.com/-/large/plain/m7QTkPw9SMJu6YP43SBrQe.jpg
 
     HttpResponse response = null;
     try {
@@ -24,7 +26,14 @@ static def fetch(Task task) {
 
     if (response != null && response.isOk()) {
         def fileName = task.getTaskUrl().split("/").last()
-        def productCode = fileName.split("_").head()
+        def productCode = null
+        if (StrUtil.contains(fileName, "_")) {
+            productCode = StrUtil.subBefore(fileName, "_", true)
+        }
+        if (StrUtil.contains(fileName, ".")) {
+            productCode = StrUtil.subBefore(fileName, ".", true)
+        }
+
         response.writeBody(IMG_PATH + productCode + "/" + fileName)
         return null
     } else {

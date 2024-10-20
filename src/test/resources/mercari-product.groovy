@@ -96,6 +96,6 @@ static def fetch(Task task) {
 static void main(String[] args) {
     def task = new Task()
 //    task.setTaskUrl("https://jp.mercari.com/item/m76452049891")
-    task.setTaskUrl("https://jp.mercari.com/shops/product/mebNqsMMy72Pr5gz7RhWt5")
+    task.setTaskUrl("https://jp.mercari.com/shops/product/725voBUeddgFcRnhyqWEeN")
     println fetch(task)
 }

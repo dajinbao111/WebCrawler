@@ -11,6 +11,7 @@ import com.github.dajinbao.apiserver.entity.Task;
 import com.github.dajinbao.crawler.HttpCrawler;
 import com.github.dajinbao.crawler.WebDriverCrawler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -161,7 +162,7 @@ public class TaskService {
     public Page<Map> list(String taskStatus, int pageNo, int pageSize) {
         long totalCount = template.count(query(where("taskStatus").is(taskStatus)), "task");
         Page<Map> page = Page.of(pageNo, pageSize, totalCount);
-        List<Map> taskList = template.find(query(where("taskStatus").is(taskStatus)).skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "task");
+        List<Map> taskList = template.find(query(where("taskStatus").is(taskStatus)).with(Sort.by(Sort.Direction.DESC, "createdAt")).skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "task");
         page.setRecords(taskList);
         return page;
     }
@@ -180,5 +181,10 @@ public class TaskService {
             }
         }
         return typeList;
+    }
+
+    public void retry(String taskId) {
+        template.updateFirst(query(where("id").is(taskId)),
+                new Update().set("taskStatus", TaskStatusEnum.PENDING.getCode()), Task.class);
     }
 }
