@@ -7,9 +7,9 @@ spring:
       max-file-size: 10MB
   data:
     mongodb:
-      uri: mongodb://admin:123456@192.168.1.15:27017/go-crawler
+      uri: mongodb://localhost:27017/webcrawler
 server:
-  port: 18080
+  port: 8080
 
 file:
   upload-dir: D:/Workspaces/go-crawler/uploads/

@@ -59,25 +59,22 @@ public class ProductService {
 
         Page<ProductResp> page = Page.of(pageNo, pageSize, totalCount);
         List<ProductResp> productList = template.find(query.with(Sort.by(Sort.Direction.DESC, "updatedAt")).skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "product")
-                .stream().map(this::toResp).collect(Collectors.toList());
+                .stream().map(m -> toResp(m, false)).collect(Collectors.toList());
         page.setRecords(productList);
         return page;
     }
 
-    private ProductResp toResp(Map map) {
+    private ProductResp toResp(Map map, boolean isExport) {
         ProductResp resp = new ProductResp();
         resp.setId(Convert.toStr(map.get("_id")));
         resp.setProductSite(Convert.toStr(map.get("productSite")));
         resp.setProductCode(Convert.toStr(map.get("productCode")));
         //http://47.99.75.168:8081/productImg/yahoo/h1156551433/i-img800x800-17286103581270vy8pag47033.jpg
         resp.setProductMainImg(Convert.toStr(map.get("productMainImg")));
-        String fileName = StrUtil.subAfter(resp.getProductMainImg(), "/", true);
-        if (FileNameUtil.extName(fileName).isBlank()) {
-            fileName = fileName + ".jpg";
-        }
-        Path file = Paths.get(uploadDir + "/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
-        if (Files.exists(file)) {
-            resp.setProductMainImg("http://47.99.75.168:8081/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
+        if (isExport) {
+            resp.setProductMainImg(convertImgPath(resp.getProductMainImg(), resp.getProductSite(), resp.getProductCode()));
+        } else {
+            resp.setProductMainImg(convertImgUrl(resp.getProductMainImg(), resp.getProductSite(), resp.getProductCode()));
         }
         resp.setProductPrice(Convert.toStr(map.get("productPrice")));
         resp.setProductTitle(Convert.toStr(map.get("productTitle")));
@@ -88,7 +85,8 @@ public class ProductService {
 
         ArrayList<String> productThumbnails = (ArrayList<String>) map.get("productThumbnail");
         if (productThumbnails != null) {
-            String thumbnails = productThumbnails.stream().map(url -> "http://47.99.75.168:8081/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + StrUtil.subAfter(url, "/", true)).collect(Collectors.joining(";"));
+
+            String thumbnails = productThumbnails.stream().map(url -> convertImgUrl(url, resp.getProductSite(), resp.getProductCode())).collect(Collectors.joining(";"));
             resp.setProductThumbnail(thumbnails);
         }
         ArrayList categories = (ArrayList) map.get("category");
@@ -120,6 +118,31 @@ public class ProductService {
         return resp;
     }
 
+    public String convertImgUrl(String url, String site, String code) {
+        String fileName = StrUtil.subAfter(url, "/", true);
+        if (FileNameUtil.extName(fileName).isBlank()) {
+            fileName = fileName + ".jpg";
+        }
+        Path file = Paths.get(uploadDir + "/productImg/" + site + "/" + code + "/" + fileName);
+        if (Files.exists(file)) {
+            return "http://47.99.75.168:8081/productImg/" + site + "/" + code + "/" + fileName;
+        } else {
+            return url;
+        }
+    }
+
+    public String convertImgPath(String url, String site, String code) {
+        String fileName = StrUtil.subAfter(url, "/", true);
+        if (FileNameUtil.extName(fileName).isBlank()) {
+            fileName = fileName + ".jpg";
+        }
+        Path file = Paths.get(uploadDir + "/productImg/" + site + "/" + code + "/" + fileName);
+        if (Files.exists(file)) {
+            return file.toString();
+        }
+        return null;
+    }
+
 
     public List<ProductResp> export(ProductReq req) {
         Query query = new Query();
@@ -139,7 +162,7 @@ public class ProductService {
         }
 
         List<ProductResp> productList = template.find(query.with(Sort.by(Sort.Direction.DESC, "updatedAt")).limit(10000), Map.class, "product")
-                .stream().map(this::toResp).collect(Collectors.toList());
+                .stream().map(m -> toResp(m, true)).collect(Collectors.toList());
         return productList;
     }
 }

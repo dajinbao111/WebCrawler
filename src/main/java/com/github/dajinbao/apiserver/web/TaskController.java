@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -43,6 +40,13 @@ public class TaskController {
     @PostMapping("/v1/tasks/retry")
     public RestResult<Void> retry(@RequestParam String taskId) {
         service.retry(taskId);
+        return RestResult.success();
+    }
+
+    @Operation(summary = "任务删除")
+    @DeleteMapping("/v1/tasks/delete")
+    public RestResult<Void> delete(@RequestParam String taskId) {
+        service.delete(taskId);
         return RestResult.success();
     }
 

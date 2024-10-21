@@ -204,7 +204,11 @@ public class TaskService {
     }
 
     public void retry(String taskId) {
-        template.updateFirst(query(where("id").is(taskId)),
-                new Update().set("taskStatus", TaskStatusEnum.PENDING.getCode()), Task.class);
+        template.updateFirst(query(where("_id").is(taskId)),
+                new Update().set("taskStatus", TaskStatusEnum.PENDING.getCode()), "task");
+    }
+
+    public void delete(String taskId) {
+        template.remove(query(where("_id").is(taskId)), "task");
     }
 }

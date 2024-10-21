@@ -2,9 +2,14 @@ package com.github.dajinbao.apiserver.entity;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import com.alibaba.excel.annotation.write.style.ContentRowHeight;
+import com.alibaba.excel.converters.string.StringImageConverter;
 import lombok.Data;
 
 @Data
+@ContentRowHeight(40)
+@ColumnWidth(100 / 8)
 public class ProductResp {
 
     @ExcelIgnore
@@ -19,7 +24,7 @@ public class ProductResp {
     private String productTitle;
     @ExcelProperty("商品地址")
     private String productUrl;
-    @ExcelProperty("商品主图")
+    @ExcelProperty(value = "商品主图", converter = StringImageConverter.class)
     private String productMainImg;
     @ExcelProperty("商品缩略图")
     private String productThumbnail;
