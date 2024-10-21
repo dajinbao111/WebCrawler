@@ -7,7 +7,7 @@ spring:
       max-file-size: 10MB
   data:
     mongodb:
-      uri: mongodb://admin:123456@192.168.1.11:27017/go-crawler
+      uri: mongodb://admin:123456@192.168.1.15:27017/go-crawler
 server:
   port: 18080
 

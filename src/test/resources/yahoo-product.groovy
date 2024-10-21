@@ -66,7 +66,8 @@ static def fetch(Task task) {
                 doc.select("ul[class^=styles_thumbnailItems] li[class^=styles_thumbnailItem] img[class^=styles_thumbnailImage]").each {
                     def imgUrl = it.attr("src")
                     if (StrUtil.startWith(imgUrl, "http")) {
-                        img << StrUtil.subBefore(imgUrl, "?", true)
+                        imgUrl = StrUtil.subBefore(imgUrl, "?", true)
+                        img << imgUrl
                         ImgDownloader.download(imgUrl, IMG_PATH + product["productCode"] + "/")
                     }
                 }

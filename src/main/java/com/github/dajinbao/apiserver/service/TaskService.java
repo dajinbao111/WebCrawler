@@ -1,18 +1,23 @@
 package com.github.dajinbao.apiserver.service;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.HashUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.dajinbao.apiserver.api.TaskStatusEnum;
 import com.github.dajinbao.apiserver.common.model.Page;
+import com.github.dajinbao.apiserver.entity.ProductResp;
 import com.github.dajinbao.apiserver.entity.Task;
+import com.github.dajinbao.apiserver.entity.TaskResp;
 import com.github.dajinbao.crawler.HttpCrawler;
 import com.github.dajinbao.crawler.WebDriverCrawler;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -24,10 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -159,12 +162,29 @@ public class TaskService {
         return resultMap;
     }
 
-    public Page<Map> list(String taskStatus, int pageNo, int pageSize) {
-        long totalCount = template.count(query(where("taskStatus").is(taskStatus)), "task");
-        Page<Map> page = Page.of(pageNo, pageSize, totalCount);
-        List<Map> taskList = template.find(query(where("taskStatus").is(taskStatus)).with(Sort.by(Sort.Direction.DESC, "createdAt")).skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "task");
+    public Page<TaskResp> list(String taskStatus, int pageNo, int pageSize) {
+        Query query = new Query();
+        if (StrUtil.isNotBlank(taskStatus)) {
+            query.addCriteria(where("taskStatus").is(taskStatus));
+        }
+        long totalCount = template.count(query, "task");
+        Page<TaskResp> page = Page.of(pageNo, pageSize, totalCount);
+        List<TaskResp> taskList = template.find(query.with(Sort.by(Sort.Direction.DESC, "createdAt")).skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "task")
+                .stream().map(this::toResp).collect(Collectors.toList());
         page.setRecords(taskList);
         return page;
+    }
+
+    private TaskResp toResp(Map map) {
+        TaskResp taskResp = new TaskResp();
+        taskResp.setId(map.get("_id").toString());
+        taskResp.setTaskType((String) map.get("taskType"));
+        taskResp.setTaskUrl((String) map.get("taskUrl"));
+        taskResp.setTaskStatus((String) map.get("taskStatus"));
+        taskResp.setFailReason((String) map.get("failReason"));
+        taskResp.setCreateAt(DateUtil.format((Date) map.get("createdAt"), "yyyy-MM-dd HH:mm:ss"));
+        taskResp.setUpdatedAt(DateUtil.format((Date) map.get("updatedAt"), "yyyy-MM-dd HH:mm:ss"));
+        return taskResp;
     }
 
     public List<String> type() {

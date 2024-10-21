@@ -2,6 +2,7 @@ package com.github.dajinbao.apiserver.web;
 
 import com.github.dajinbao.apiserver.common.model.Page;
 import com.github.dajinbao.apiserver.common.model.RestResult;
+import com.github.dajinbao.apiserver.entity.TaskResp;
 import com.github.dajinbao.apiserver.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,6 +39,7 @@ public class TaskController {
         return RestResult.success();
     }
 
+    @Operation(summary = "任务重试")
     @PostMapping("/v1/tasks/retry")
     public RestResult<Void> retry(@RequestParam String taskId) {
         service.retry(taskId);
@@ -66,7 +68,7 @@ public class TaskController {
 
     @Operation(summary = "任务状态列表")
     @GetMapping("/v1/tasks/list")
-    public RestResult<Page<Map>> list(@RequestParam String taskStatus,@RequestParam(defaultValue = "1") int pageNo, @RequestParam(defaultValue = "20") int pageSize) {
+    public RestResult<Page<TaskResp>> list(@RequestParam(required = false) String taskStatus, @RequestParam(defaultValue = "1") int pageNo, @RequestParam(defaultValue = "20") int pageSize) {
         return RestResult.success(service.list(taskStatus,pageNo, pageSize));
     }
 }
