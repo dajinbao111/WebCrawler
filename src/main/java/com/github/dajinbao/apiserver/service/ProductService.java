@@ -2,11 +2,13 @@ package com.github.dajinbao.apiserver.service;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.StrUtil;
 import com.github.dajinbao.apiserver.common.model.Page;
 import com.github.dajinbao.apiserver.entity.ProductReq;
 import com.github.dajinbao.apiserver.entity.ProductResp;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -56,7 +58,7 @@ public class ProductService {
         long totalCount = template.count(query, "product");
 
         Page<ProductResp> page = Page.of(pageNo, pageSize, totalCount);
-        List<ProductResp> productList = template.find(query.skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "product")
+        List<ProductResp> productList = template.find(query.with(Sort.by(Sort.Direction.DESC, "updatedAt")).skip((long) (pageNo - 1) * pageSize).limit(pageSize), Map.class, "product")
                 .stream().map(this::toResp).collect(Collectors.toList());
         page.setRecords(productList);
         return page;
@@ -70,6 +72,9 @@ public class ProductService {
         //http://47.99.75.168:8081/productImg/yahoo/h1156551433/i-img800x800-17286103581270vy8pag47033.jpg
         resp.setProductMainImg(Convert.toStr(map.get("productMainImg")));
         String fileName = StrUtil.subAfter(resp.getProductMainImg(), "/", true);
+        if (FileNameUtil.extName(fileName).isBlank()) {
+            fileName = fileName + ".jpg";
+        }
         Path file = Paths.get(uploadDir + "/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
         if (Files.exists(file)) {
             resp.setProductMainImg("http://47.99.75.168:8081/productImg/" + resp.getProductSite() + "/" + resp.getProductCode() + "/" + fileName);
@@ -133,7 +138,7 @@ public class ProductService {
                     .lte(DateUtil.parse(req.getUpdatedEndTime(), "yyyy-MM-dd").toLocalDateTime()));
         }
 
-        List<ProductResp> productList = template.find(query, Map.class, "product")
+        List<ProductResp> productList = template.find(query.with(Sort.by(Sort.Direction.DESC, "updatedAt")).limit(10000), Map.class, "product")
                 .stream().map(this::toResp).collect(Collectors.toList());
         return productList;
     }

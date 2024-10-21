@@ -123,6 +123,7 @@ static def fetch(Task task) {
             if (!el.isEmpty()) {
                 seller["sellerName"] = el.select("p").text()
                 seller["sellerUrl"] = el.select("a").attr("href")
+                seller["sellerId"] = doc.select("input[name=seller_id]").attr("value")
             } else {
                 seller["sellerName"] = doc.select("div.Seller div.Seller__info p.Seller__name a").text()
                 seller["sellerUrl"] = doc.select("div.Seller div.Seller__info p.Seller__name a").attr("href")
