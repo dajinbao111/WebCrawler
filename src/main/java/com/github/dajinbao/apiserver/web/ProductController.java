@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.List;
 
 @Tag(name = "商品维护管理")
 @RestController
@@ -45,5 +46,14 @@ public class ProductController {
         response.setCharacterEncoding("utf-8");
         response.setHeader("Content-disposition", "attachment;filename=" + System.currentTimeMillis() + ".xlsx");
         EasyExcel.write(response.getOutputStream(), ProductResp.class).sheet().doWrite(service.export(req));
+    }
+
+    @Operation(summary = "导出勾选商品")
+    @PostMapping("/v1/products/exportChecked")
+    public void exportChecked(@RequestBody List<String> productIds, HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.ms-excel");
+        response.setCharacterEncoding("utf-8");
+        response.setHeader("Content-disposition", "attachment;filename=" + System.currentTimeMillis() + ".xlsx");
+        EasyExcel.write(response.getOutputStream(), ProductResp.class).sheet().doWrite(service.exportChecked(productIds));
     }
 }

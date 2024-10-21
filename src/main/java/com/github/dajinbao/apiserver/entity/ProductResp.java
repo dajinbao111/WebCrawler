@@ -46,6 +46,10 @@ public class ProductResp {
     private String category4Name;
     @ExcelProperty("四级类目地址")
     private String category4Url;
+    @ExcelProperty("重量")
+    private String productWeight;
+    @ExcelProperty("尺寸")
+    private String productSize;
     @ExcelProperty("商品信息")
     private String productInfo;
     @ExcelProperty("商品描述")

@@ -165,4 +165,12 @@ public class ProductService {
                 .stream().map(m -> toResp(m, true)).collect(Collectors.toList());
         return productList;
     }
+
+    public Collection<?> exportChecked(List<String> productIds) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("_id").in(productIds));
+        List<ProductResp> productList = template.find(query.limit(10000), Map.class, "product")
+                .stream().map(m -> toResp(m, true)).collect(Collectors.toList());
+        return productList;
+    }
 }
